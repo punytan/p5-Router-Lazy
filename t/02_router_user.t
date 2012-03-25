@@ -6,13 +6,17 @@ use t::Util::Router;
 
 is $Router::Lazy::NameSpace, "Foo::Web";
 
+sub get_env {
+    my ($method, $path) = @_;
+    return +{
+        REQUEST_METHOD => $method,
+        PATH_INFO => $path,
+    };
+}
+
 subtest "success" => sub {
     subtest "GET /" => sub {
-        my $env = {
-            REQUEST_METHOD => "GET",
-            PATH_INFO => "/",
-        };
-
+        my $env = get_env( GET => "/" );
         my $expected = {
             controller => "Foo::Web::Root",
             action => "index",
@@ -23,11 +27,7 @@ subtest "success" => sub {
     };
 
     subtest "GET /search" => sub {
-        my $env = {
-            REQUEST_METHOD => "GET",
-            PATH_INFO => "/search",
-        };
-
+        my $env = get_env( GET => "/search" );
         my $expected = {
             controller => "Foo::Web::Search",
             action => "search",
@@ -38,11 +38,7 @@ subtest "success" => sub {
     };
 
     subtest "GET /statuses/show/:id" => sub {
-        my $env = {
-            REQUEST_METHOD => "GET",
-            PATH_INFO => "/statuses/show/12345",
-        };
-
+        my $env = get_env( GET => "/statuses/show/12345" );
         my $expected = {
             controller => "Foo::Web::Statuses",
             action => "show",
@@ -53,11 +49,7 @@ subtest "success" => sub {
     };
 
     subtest "GET /statuses/:id/retweeted_by" => sub {
-        my $env = {
-            REQUEST_METHOD => "GET",
-            PATH_INFO => "/statuses/12345/retweeted_by",
-        };
-
+        my $env = get_env( GET => "/statuses/12345/retweeted_by" );
         my $expected = {
             controller => "Foo::Web::Statuses",
             action => "retweeted_by",
@@ -68,10 +60,7 @@ subtest "success" => sub {
     };
 
     subtest "POST /statuses/destroy/:id" => sub {
-        my $env = {
-            REQUEST_METHOD => "POST",
-            PATH_INFO => "/statuses/destroy/12345",
-        };
+        my $env = get_env( POST => "/statuses/destroy/12345" );
 
         my $expected = {
             controller => "Foo::Web::Statuses",
@@ -83,11 +72,7 @@ subtest "success" => sub {
     };
 
     subtest "POST /statuses/retweet/:id" => sub {
-        my $env = {
-            REQUEST_METHOD => "POST",
-            PATH_INFO => "/statuses/retweet/12345",
-        };
-
+        my $env = get_env( POST => "/statuses/retweet/12345" );
         my $expected = {
             controller => "Foo::Web::Statuses",
             action => "retweet",
@@ -98,11 +83,7 @@ subtest "success" => sub {
     };
 
     subtest "POST /statuses/update" => sub {
-        my $env = {
-            REQUEST_METHOD => "POST",
-            PATH_INFO => "/statuses/update",
-        };
-
+        my $env = get_env( POST => "/statuses/update" );
         my $expected = {
             controller => "Foo::Web::Statuses",
             action => "update",
@@ -113,11 +94,7 @@ subtest "success" => sub {
     };
 
     subtest "PUT /account/update_location" => sub {
-        my $env = {
-            REQUEST_METHOD => "PUT",
-            PATH_INFO => "/account/update_location",
-        };
-
+        my $env = get_env( PUT => "/account/update_location" );
         my $expected = {
             controller => "Foo::Web::Account",
             action => "update_location",
@@ -128,11 +105,7 @@ subtest "success" => sub {
     };
 
     subtest "DELETE /:user/:list_id/members" => sub {
-        my $env = {
-            REQUEST_METHOD => "DELETE",
-            PATH_INFO => "/12345/67890/members",
-        };
-
+        my $env = get_env( DELETE => "/12345/67890/members" );
         my $expected = {
             controller => "Foo::Web::User::List",
             action => "delete_members",
@@ -145,11 +118,7 @@ subtest "success" => sub {
 
 subtest "HEAD" => sub {
     subtest "HEAD /search" => sub {
-        my $env = {
-            REQUEST_METHOD => "HEAD",
-            PATH_INFO => "/search",
-        };
-
+        my $env = get_env( HEAD => "/search" );
         my $expected = {
             controller => "Foo::Web::Search",
             action => "search",,
@@ -160,28 +129,19 @@ subtest "HEAD" => sub {
     };
 
     subtest "HEAD /statuses/destroy/:id" => sub {
-        my $env = {
-            REQUEST_METHOD => "HEAD",
-            PATH_INFO => "/statuses/destroy/12345",
-        };
+        my $env = get_env( HEAD => "/statuses/destroy/12345" );
         my $ret = Router::Lazy->match($env);
         ok !$ret;
     };
 
     subtest "HEAD /account/update_location" => sub {
-        my $env = {
-            REQUEST_METHOD => "HEAD",
-            PATH_INFO => "/account/update_location",
-        };
+        my $env = get_env( HEAD => "/account/update_location" );
         my $ret = Router::Lazy->match($env);
         ok !$ret;
     };
 
     subtest "HEAD /:user/:list_id/members" => sub {
-        my $env = {
-            REQUEST_METHOD => "HEAD",
-            PATH_INFO => "/12345/67890/members",
-        };
+        my $env = get_env( HEAD => "/12345/67890/members" );
         my $ret = Router::Lazy->match($env);
         ok !$ret;
     };
@@ -190,37 +150,25 @@ subtest "HEAD" => sub {
 
 subtest "Method Not Allowed" => sub {
     subtest "POST /" => sub {
-        my $env = {
-            REQUEST_METHOD => "POST",
-            PATH_INFO => "/",
-        };
+        my $env = get_env(POST => "/");
         my $ret = Router::Lazy->match($env);
         ok !$ret;
     };
 
     subtest "GET /statuses/show/:id" => sub {
-        my $env = {
-            REQUEST_METHOD => "GET",
-            PATH_INFO => "/statuses/show:12345",
-        };
+        my $env = get_env( GET => "/statuses/show:12345" );
         my $ret = Router::Lazy->match($env);
         ok !$ret;
     };
 
     subtest "GET /statuses/destroy/:id" => sub {
-        my $env = {
-            REQUEST_METHOD => "GET",
-            PATH_INFO => "/statuses/destroy/12345",
-        };
+        my $env = get_env( GET => "/statuses/destroy/12345" );
         my $ret = Router::Lazy->match($env);
         ok !$ret;
     };
 
     subtest "GET /:user/:list_id/members" => sub {
-        my $env = {
-            REQUEST_METHOD => "GET",
-            PATH_INFO => "/12345/67890/members",
-        };
+        my $env = get_env( GET => "/12345/67890/members" );
         my $ret = Router::Lazy->match($env);
         ok !$ret;
     };
