@@ -29,10 +29,10 @@ sub _new {
     return bless \%args, $class;
 }
 
-sub get  { shift->_register('GET',    @_); }
-sub post { shift->_register('POST',   @_); }
-sub put  { shift->_register('PUT',    @_); }
-sub del  { shift->_register('DELETE', @_); } # "delete" is reserved word :/
+sub get     { shift->_register('GET',    @_); }
+sub post    { shift->_register('POST',   @_); }
+sub put     { shift->_register('PUT',    @_); }
+sub delete  { shift->_register('DELETE', @_); }
 
 # We do not think __PACKAGE__->head() is required since
 # HEAD method is just an alias of GET request without response body.

@@ -10,7 +10,7 @@ subtest "public methods" => sub {
         get
         post
         put
-        del
+        delete
         match
     );
 };

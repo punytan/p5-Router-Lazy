@@ -16,7 +16,7 @@ $r->post("/statuses/update" => "Statuses#update");
 
 $r->put("/account/update_location" => "Account#update_location");
 
-$r->del("/:user/:list_id/members" => "User::List#delete_members");
+$r->delete("/:user/:list_id/members" => "User::List#delete_members");
 
 1;
 
