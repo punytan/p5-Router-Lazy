@@ -4,11 +4,24 @@ use Test::More;
 use Router::Lazy;
 
 subtest "public methods" => sub {
-    can_ok "Router::Lazy", qw( namespace get post put del match );
+    can_ok "Router::Lazy", qw(
+        namespaces
+        instance
+        get
+        post
+        put
+        del
+        match
+    );
 };
 
 subtest "private methods" => sub {
-    can_ok "Router::Lazy", qw( _register _make_regex _matcher );
+    can_ok "Router::Lazy", qw(
+        _new
+        _register
+        _make_regex
+        _matcher
+    );
 };
 
 done_testing;

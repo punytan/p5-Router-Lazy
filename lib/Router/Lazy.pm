@@ -2,27 +2,37 @@ package Router::Lazy;
 use strict;
 use warnings;
 our $VERSION = '0.01';
-
 use Carp ();
-use Exporter "import";
-our @EXPORT = qw( namespace get post put del );
 
-our $NameSpace = "";
-our $Rules = {
-    GET    => [],
-    POST   => [],
-    PUT    => [],
-    DELETE => [],
-};
+my %instances;
 
-## no critic (ProhibitSubroutinePrototypes)
-sub namespace ($) { $NameSpace = shift; }
+sub namespaces { values %instances }
 
-sub get  ($$) { __PACKAGE__->_register('GET',    @_); }
-sub post ($$) { __PACKAGE__->_register('POST',   @_); }
-sub put  ($$) { __PACKAGE__->_register('PUT',    @_); }
-sub del  ($$) { __PACKAGE__->_register('DELETE', @_); } # "delete" is reserved word :/
-## use critic
+sub instance {
+    my ($class, $name) = @_;
+
+    defined $name or Carp::croak "Invalid namespace";
+
+    $instances{$name} ||= $class->_new(namespace => $name);
+}
+
+sub _new {
+    my ($class, %args) = @_;
+
+    $args{rules} ||= {
+        GET    => [],
+        POST   => [],
+        PUT    => [],
+        DELETE => [],
+    };
+
+    return bless \%args, $class;
+}
+
+sub get  { shift->_register('GET',    @_); }
+sub post { shift->_register('POST',   @_); }
+sub put  { shift->_register('PUT',    @_); }
+sub del  { shift->_register('DELETE', @_); } # "delete" is reserved word :/
 
 # We do not think __PACKAGE__->head() is required since
 # HEAD method is just an alias of GET request without response body.
@@ -39,13 +49,13 @@ sub del  ($$) { __PACKAGE__->_register('DELETE', @_); } # "delete" is reserved w
 #       - https://developers.facebook.com/docs/reference/api/
 
 sub _register {
-    my ($class, $method, $path, $handler) = @_;
+    my ($self, $method, $path, $handler) = @_;
     my ($controller, $action) = split '#', $handler;
 
-    my $path_re = __PACKAGE__->_make_regex($path);
+    my $path_re = $self->_make_regex($path);
 
-    push @{$Rules->{$method}}, +{
-        controller => sprintf("%s::%s", $NameSpace, $controller),
+    push @{$self->{rules}{$method}}, +{
+        controller => sprintf("%s::%s", $self->{namespace}, $controller),
         action => $action,
         path   => $path_re,
     };
@@ -69,14 +79,14 @@ sub _make_regex {
 }
 
 sub match {
-    my ($class, $env, $method) = @_;
+    my ($self, $env, $method) = @_;
     $method ||= uc $env->{REQUEST_METHOD};
 
     if ($method eq 'HEAD') {
         $method = 'GET'; # HEAD method is just an alias of GET method (without body)
     }
 
-    if (my $ret = __PACKAGE__->_matcher($env, $method)) {
+    if (my $ret = $self->_matcher($env, $method)) {
         return $ret;
     }
 
@@ -84,10 +94,10 @@ sub match {
 }
 
 sub _matcher {
-    my ($class, $env, $method) = @_;
+    my ($self, $env, $method) = @_;
     my $path_info = $env->{PATH_INFO} || '/';
 
-    for my $rule ( @{$Rules->{$method}} ) {
+    for my $rule ( @{$self->{rules}{$method}} ) {
         if ($path_info =~ $rule->{path}) {
             return +{
                 controller => $rule->{controller},

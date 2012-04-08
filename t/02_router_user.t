@@ -3,8 +3,13 @@ use warnings;
 use Test::More;
 
 use t::Util::Router;
+use Router::Lazy;
 
-is $Router::Lazy::NameSpace, "Foo::Web";
+{
+    is_deeply [(Router::Lazy->namespaces)[0]->{namespace}], ["Foo::Web"];
+}
+
+my $router = Router::Lazy->instance("Foo::Web");
 
 sub get_env {
     my ($method, $path) = @_;
@@ -23,7 +28,7 @@ subtest "success" => sub {
             args   => [ (undef) x 5 ],
         };
 
-        is_deeply(Router::Lazy->match($env), $expected);
+        is_deeply($router->match($env), $expected);
     };
 
     subtest "GET /search" => sub {
@@ -34,7 +39,7 @@ subtest "success" => sub {
             args   => [ (undef) x 5 ],
         };
 
-        is_deeply(Router::Lazy->match($env), $expected);
+        is_deeply($router->match($env), $expected);
     };
 
     subtest "GET /statuses/show/:id" => sub {
@@ -45,7 +50,7 @@ subtest "success" => sub {
             args   => [ "12345", (undef) x 4 ],
         };
 
-        is_deeply(Router::Lazy->match($env), $expected);
+        is_deeply($router->match($env), $expected);
     };
 
     subtest "GET /statuses/:id/retweeted_by" => sub {
@@ -56,7 +61,7 @@ subtest "success" => sub {
             args   => [ "12345", (undef) x 4 ],
         };
 
-        is_deeply(Router::Lazy->match($env), $expected);
+        is_deeply($router->match($env), $expected);
     };
 
     subtest "POST /statuses/destroy/:id" => sub {
@@ -68,7 +73,7 @@ subtest "success" => sub {
             args   => [ "12345", (undef) x 4 ],
         };
 
-        is_deeply(Router::Lazy->match($env), $expected);
+        is_deeply($router->match($env), $expected);
     };
 
     subtest "POST /statuses/retweet/:id" => sub {
@@ -79,7 +84,7 @@ subtest "success" => sub {
             args   => [ "12345", (undef) x 4 ],
         };
 
-        is_deeply(Router::Lazy->match($env), $expected);
+        is_deeply($router->match($env), $expected);
     };
 
     subtest "POST /statuses/update" => sub {
@@ -90,7 +95,7 @@ subtest "success" => sub {
             args   => [ (undef) x 5 ],
         };
 
-        is_deeply(Router::Lazy->match($env), $expected);
+        is_deeply($router->match($env), $expected);
     };
 
     subtest "PUT /account/update_location" => sub {
@@ -101,7 +106,7 @@ subtest "success" => sub {
             args   => [ (undef) x 5 ],
         };
 
-        is_deeply(Router::Lazy->match($env), $expected);
+        is_deeply($router->match($env), $expected);
     };
 
     subtest "DELETE /:user/:list_id/members" => sub {
@@ -112,7 +117,7 @@ subtest "success" => sub {
             args   => [ "12345", "67890", (undef) x 3 ],
         };
 
-        is_deeply(Router::Lazy->match($env), $expected);
+        is_deeply($router->match($env), $expected);
     };
 };
 
@@ -125,24 +130,24 @@ subtest "HEAD" => sub {
             args   => [ (undef) x 5 ],
         };
 
-        is_deeply(Router::Lazy->match($env), $expected);
+        is_deeply($router->match($env), $expected);
     };
 
     subtest "HEAD /statuses/destroy/:id" => sub {
         my $env = get_env( HEAD => "/statuses/destroy/12345" );
-        my $ret = Router::Lazy->match($env);
+        my $ret = $router->match($env);
         ok !$ret;
     };
 
     subtest "HEAD /account/update_location" => sub {
         my $env = get_env( HEAD => "/account/update_location" );
-        my $ret = Router::Lazy->match($env);
+        my $ret = $router->match($env);
         ok !$ret;
     };
 
     subtest "HEAD /:user/:list_id/members" => sub {
         my $env = get_env( HEAD => "/12345/67890/members" );
-        my $ret = Router::Lazy->match($env);
+        my $ret = $router->match($env);
         ok !$ret;
     };
 
@@ -151,25 +156,25 @@ subtest "HEAD" => sub {
 subtest "Method Not Allowed" => sub {
     subtest "POST /" => sub {
         my $env = get_env(POST => "/");
-        my $ret = Router::Lazy->match($env);
+        my $ret = $router->match($env);
         ok !$ret;
     };
 
     subtest "GET /statuses/show/:id" => sub {
         my $env = get_env( GET => "/statuses/show:12345" );
-        my $ret = Router::Lazy->match($env);
+        my $ret = $router->match($env);
         ok !$ret;
     };
 
     subtest "GET /statuses/destroy/:id" => sub {
         my $env = get_env( GET => "/statuses/destroy/12345" );
-        my $ret = Router::Lazy->match($env);
+        my $ret = $router->match($env);
         ok !$ret;
     };
 
     subtest "GET /:user/:list_id/members" => sub {
         my $env = get_env( GET => "/12345/67890/members" );
-        my $ret = Router::Lazy->match($env);
+        my $ret = $router->match($env);
         ok !$ret;
     };
 

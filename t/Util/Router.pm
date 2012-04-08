@@ -3,20 +3,20 @@ use strict;
 use warnings;
 use Router::Lazy;
 
-namespace "Foo::Web";
+my $r = Router::Lazy->instance("Foo::Web");
 
-get  "/" => "Root#index";
-get  "/search" => "Search#search";
-get  "/statuses/show/:id" => "Statuses#show";
-get  "/statuses/:id/retweeted_by" => "Statuses#retweeted_by";
+$r->get("/" => "Root#index");
+$r->get("/search" => "Search#search");
+$r->get("/statuses/show/:id" => "Statuses#show");
+$r->get("/statuses/:id/retweeted_by" => "Statuses#retweeted_by");
 
-post "/statuses/destroy/:id" => "Statuses#destroy";
-post "/statuses/retweet/:id" => "Statuses#retweet";
-post "/statuses/update" => "Statuses#update";
+$r->post("/statuses/destroy/:id" => "Statuses#destroy");
+$r->post("/statuses/retweet/:id" => "Statuses#retweet");
+$r->post("/statuses/update" => "Statuses#update");
 
-put  "/account/update_location" => "Account#update_location";
+$r->put("/account/update_location" => "Account#update_location");
 
-del  "/:user/:list_id/members" => "User::List#delete_members";
+$r->del("/:user/:list_id/members" => "User::List#delete_members");
 
 1;
 
