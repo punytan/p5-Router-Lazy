@@ -13,10 +13,10 @@ sub instance {
 
     defined $name or Carp::croak "Invalid namespace";
 
-    $instances{$name} ||= $class->_new(namespace => $name);
+    $instances{$name} ||= $class->new(namespace => $name);
 }
 
-sub _new {
+sub new {
     my ($class, %args) = @_;
 
     $args{rules} ||= {

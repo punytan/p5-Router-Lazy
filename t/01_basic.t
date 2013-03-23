@@ -7,6 +7,7 @@ subtest "public methods" => sub {
     can_ok "Router::Lazy", qw(
         namespaces
         instance
+        new
         get
         post
         put
@@ -17,7 +18,6 @@ subtest "public methods" => sub {
 
 subtest "private methods" => sub {
     can_ok "Router::Lazy", qw(
-        _new
         _register
         _make_regex
         _matcher
