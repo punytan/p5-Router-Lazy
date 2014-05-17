@@ -2,8 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 
-use t::Util::Router;
-use Router::Lazy;
+use t::Util::RouterDSL;
 
 sub get_env {
     my ($method, $path) = @_;
@@ -13,13 +12,13 @@ sub get_env {
     };
 }
 
-my $namespace = "Foo::Web";
-my $router = Router::Lazy->instance($namespace);
+my $namespace = "FooDSL::Web";
+my $router = t::Util::RouterDSL::routes $namespace;
 
 subtest "router should be registered" => sub {
     ok($router, "router should be registered");
     is(
-        (Router::Lazy->namespaces)[0]->{namespace},
+        (Router::Lazy::DSL->namespaces)[0]->{namespace},
         $namespace
    );
 };
@@ -155,7 +154,6 @@ subtest "HEAD" => sub {
         my $ret = $router->match($env);
         ok !$ret;
     };
-
 };
 
 subtest "Method Not Allowed" => sub {
@@ -182,7 +180,7 @@ subtest "Method Not Allowed" => sub {
         my $ret = $router->match($env);
         ok !$ret;
     };
-
 };
 
 done_testing;
+
